@@ -1,0 +1,66 @@
+//Server.java
+import java.util.*;
+import java.io.*;
+import java.net.*;
+
+
+public class Server {
+	public static int index(String pin) {
+		String hosts[] = {"www.google.com", "www.zoho.com"};
+		return Arrays.asList(hosts).indexOf(pin);
+	}
+	public static void main(String[] args) {
+		String ip[] = {"123.123.123.123", "124.124.124.124"};
+		try {
+			DatagramSocket sock = new DatagramSocket(8080);
+			byte[] req = new byte[1024];
+			byte[] res = new byte[1024];
+			DatagramPacket reqPack = new DatagramPacket(req, req.length);
+			sock.receive(reqPack);
+			String data = new String(reqPack.getData()).trim();
+			InetAddress addr = reqPack.getAddress();
+			res = ip[index(data)].getBytes();
+			DatagramPacket resPack = new DatagramPacket(res, res.length, addr, 8081);
+			sock.send(resPack);
+			sock.close();
+		} catch(Exception e) {
+			System.err.println(e);
+		}
+	}
+}
+
+
+
+
+
+
+
+
+
+//Client.java
+
+import java.util.*;
+import java.io.*;
+import java.net.*;
+
+public class Client {
+	public static void main(String args[]) {
+		try {
+			Scanner s = new Scanner(System.in);
+			DatagramSocket sock = new DatagramSocket(8081);
+			byte[] req = new byte[1024];
+			byte[] res = new byte[1024];
+			System.out.print("Enter url: ");
+			req = s.next().trim().getBytes();
+			DatagramPacket reqPack = new DatagramPacket(req, req.length, InetAddress.getLocalHost(), 8080);
+			sock.send(reqPack);
+
+			DatagramPacket resPack = new DatagramPacket(res, res.length);
+			sock.receive(resPack);
+			System.out.println(new String(resPack.getData()));
+		} catch (Exception e) {
+			System.err.println(e);
+		}
+	}
+}
+
